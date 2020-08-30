@@ -93,7 +93,7 @@ class Console
         if ($head === null) $head = self::getHead("E");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [3, 4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
-            $trace = "[" . basename($trace["file"], ".php") . ":" . $trace["function"] . "] ";
+            $trace = "[" . basename($trace["file"] ?? '', ".php") . ":" . ($trace["function"] ?? '') . "] ";
         }
         if (!is_string($obj)) {
             if (isset($trace)) {
@@ -160,7 +160,7 @@ class Console
         if ($head === null) $head = self::getHead("S");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [1, 2])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
-            $trace = "[" . basename($trace["file"], ".php") . ":" . $trace["function"] . "] ";
+            $trace = "[" . basename($trace["file"] ?? '', ".php") . ":" . ($trace["function"] ?? '') . "] ";
         }
         if (self::$info_level->get() >= 2) {
             if (!is_string($obj)) {
@@ -178,7 +178,7 @@ class Console
         if ($head === null) $head = self::getHead("I");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [1, 2])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
-            $trace = "[" . basename($trace["file"], ".php") . ":" . $trace["function"] . "] ";
+            $trace = "[" . basename($trace["file"] ?? '', ".php") . ":" . ($trace["function"] ?? '') . "] ";
         }
         if (self::$info_level->get() >= 2) {
             if (!is_string($obj)) {
@@ -196,7 +196,7 @@ class Console
         if ($head === null) $head = self::getHead("W");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [1, 2])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
-            $trace = "[" . basename($trace["file"], ".php") . ":" . $trace["function"] . "] ";
+            $trace = "[" . basename($trace["file"] ?? '', ".php") . ":" . ($trace["function"] ?? '') . "] ";
         }
         if (self::$info_level->get() >= 1) {
             if (!is_string($obj)) {
