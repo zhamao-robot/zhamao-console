@@ -15,7 +15,7 @@ class Console
     /** @var null|Atomic */
     private static $info_level = null;
 
-    private static $theme = "default";
+    public static $theme = "default";
 
     private static $default_theme = [
         "success" => "green",
@@ -36,12 +36,22 @@ class Console
      * @param string $theme
      * @param array $theme_config
      */
-    public static function init(int $info_level, $server = null,  $theme = "default", $theme_config = [])
+    public static function init(int $info_level, $server = null, $theme = "default", $theme_config = [])
     {
         self::$server = $server;
         self::$info_level = new Atomic($info_level);
         self::$theme = $theme;
         self::$theme_config = $theme_config;
+    }
+
+    public static function setLevel(int $level)
+    {
+        self::$info_level->set($level);
+    }
+
+    public static function getLevel()
+    {
+        return self::$info_level->get();
     }
 
     public static function setColor($string, $color = "")
@@ -130,7 +140,8 @@ class Console
         if (self::$info_level->get() >= 4) Console::log(self::getHead("D") . $msg, self::getThemeColor(__FUNCTION__));
     }
 
-    public static function verbose($obj, $head = null) {
+    public static function verbose($obj, $head = null)
+    {
         if ($head === null) $head = self::getHead("V");
         if (self::$info_level->get() >= 3) {
             if (!is_string($obj)) {
@@ -143,7 +154,8 @@ class Console
         }
     }
 
-    public static function success($obj, $head = null) {
+    public static function success($obj, $head = null)
+    {
         if ($head === null) $head = self::getHead("S");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [1, 2])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
@@ -160,7 +172,8 @@ class Console
         }
     }
 
-    public static function info($obj, $head = null) {
+    public static function info($obj, $head = null)
+    {
         if ($head === null) $head = self::getHead("I");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [1, 2])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
@@ -177,7 +190,8 @@ class Console
         }
     }
 
-    static function warning($obj, $head = null) {
+    static function warning($obj, $head = null)
+    {
         if ($head === null) $head = self::getHead("W");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [1, 2])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
