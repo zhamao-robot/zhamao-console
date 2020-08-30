@@ -46,6 +46,7 @@ class Console
 
     public static function setLevel(int $level)
     {
+        if (self::$info_level === null) self::$info_level = new Atomic($level);
         self::$info_level->set($level);
     }
 
@@ -137,13 +138,13 @@ class Console
 
     public static function debug($msg)
     {
-        if (self::$info_level->get() >= 4) Console::log(self::getHead("D") . $msg, self::getThemeColor(__FUNCTION__));
+        if (self::$info_level !== null && self::$info_level->get() >= 4) Console::log(self::getHead("D") . $msg, self::getThemeColor(__FUNCTION__));
     }
 
     public static function verbose($obj, $head = null)
     {
         if ($head === null) $head = self::getHead("V");
-        if (self::$info_level->get() >= 3) {
+        if (self::$info_level !== null && self::$info_level->get() >= 3) {
             if (!is_string($obj)) {
                 if (isset($trace)) {
                     var_dump($obj);
