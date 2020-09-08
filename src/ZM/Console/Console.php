@@ -158,7 +158,7 @@ class Console
     public static function success($obj, $head = null)
     {
         if ($head === null) $head = self::getHead("S");
-        if (self::$info_level !== null && in_array(self::$info_level->get(), [1, 2])) {
+        if (self::$info_level !== null && in_array(self::$info_level->get(), [4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
             $trace = "[" . basename($trace["file"] ?? '', ".php") . ":" . ($trace["function"] ?? '') . "] ";
         }
@@ -176,7 +176,7 @@ class Console
     public static function info($obj, $head = null)
     {
         if ($head === null) $head = self::getHead("I");
-        if (self::$info_level !== null && in_array(self::$info_level->get(), [1, 2])) {
+        if (self::$info_level !== null && in_array(self::$info_level->get(), [4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
             $trace = "[" . basename($trace["file"] ?? '', ".php") . ":" . ($trace["function"] ?? '') . "] ";
         }
@@ -194,7 +194,7 @@ class Console
     static function warning($obj, $head = null)
     {
         if ($head === null) $head = self::getHead("W");
-        if (self::$info_level !== null && in_array(self::$info_level->get(), [1, 2])) {
+        if (self::$info_level !== null && in_array(self::$info_level->get(), [4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
             $trace = "[" . basename($trace["file"] ?? '', ".php") . ":" . ($trace["function"] ?? '') . "] ";
         }
