@@ -212,7 +212,7 @@ class Console
     private static function getHead($mode)
     {
         $head = date("[H:i:s] ") . "[{$mode}] ";
-        if ((self::$server->setting["worker_num"] ?? 1) > 1) {
+        if ((self::$server->setting["worker_num"] ?? 1) > 1 && self::$server->worker_id != -1) {
             $head .= "[#" . self::$server->worker_id . "] ";
         }
         return $head;
