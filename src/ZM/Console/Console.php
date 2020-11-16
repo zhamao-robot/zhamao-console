@@ -93,7 +93,7 @@ class Console
         if ($head === null) $head = self::getHead("E");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [3, 4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
-            $trace = "[" . basename($trace["file"] ?? '', ".php") . ":" . ($trace["function"] ?? '') . "] ";
+            $trace = "[" . ($trace["class"] ?? '') . ":" . ($trace["function"] ?? '') . "] ";
         }
         if (!is_string($obj)) {
             if (isset($trace)) {
@@ -138,12 +138,20 @@ class Console
 
     public static function debug($msg)
     {
-        if (self::$info_level !== null && self::$info_level->get() >= 4) Console::log(self::getHead("D") . $msg, self::getThemeColor(__FUNCTION__));
+        if (self::$info_level !== null && self::$info_level->get() >= 4) {
+            $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
+            $trace = "[" . ($trace["class"] ?? '') . ":" . ($trace["function"] ?? '') . "] ";
+            Console::log(self::getHead("D") . ($trace) . $msg, self::getThemeColor(__FUNCTION__));
+        }
     }
 
     public static function verbose($obj, $head = null)
     {
         if ($head === null) $head = self::getHead("V");
+        if (self::$info_level !== null && in_array(self::$info_level->get(), [4])) {
+            $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
+            $trace = "[" . ($trace["class"] ?? '') . ":" . ($trace["function"] ?? '') . "] ";
+        }
         if (self::$info_level !== null && self::$info_level->get() >= 3) {
             if (!is_string($obj)) {
                 if (isset($trace)) {
@@ -160,7 +168,7 @@ class Console
         if ($head === null) $head = self::getHead("S");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
-            $trace = "[" . basename($trace["file"] ?? '', ".php") . ":" . ($trace["function"] ?? '') . "] ";
+            $trace = "[" . ($trace["class"] ?? '') . ":" . ($trace["function"] ?? '') . "] ";
         }
         if (self::$info_level->get() >= 2) {
             if (!is_string($obj)) {
@@ -178,10 +186,10 @@ class Console
         if ($head === null) $head = self::getHead("I");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
-            $trace = "[" . basename($trace["file"] ?? '', ".php") . ":" . ($trace["function"] ?? '') . "] ";
+            $trace = "[" . ($trace["class"] ?? '') . ":" . ($trace["function"] ?? '') . "] ";
         }
         if (self::$info_level->get() >= 2) {
-            if (!is_string($obj)) {
+            if (!is_string($obj) && !is_int($obj)) {
                 if (isset($trace)) {
                     var_dump($obj);
                     return;
@@ -196,7 +204,7 @@ class Console
         if ($head === null) $head = self::getHead("W");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
-            $trace = "[" . basename($trace["file"] ?? '', ".php") . ":" . ($trace["function"] ?? '') . "] ";
+            $trace = "[" . ($trace["class"] ?? '') . ":" . ($trace["function"] ?? '') . "] ";
         }
         if (self::$info_level->get() >= 1) {
             if (!is_string($obj)) {
@@ -211,7 +219,7 @@ class Console
 
     private static function getHead($mode)
     {
-        $head = date("[H:i:s] ") . "[{$mode}] ";
+        $head = date("[H:i:s] ") . "[{$mode[0]}] ";
         if ((self::$server->setting["worker_num"] ?? 1) > 1 && self::$server->worker_id != -1) {
             $head .= "[#" . self::$server->worker_id . "] ";
         }
@@ -221,5 +229,24 @@ class Console
     private static function getThemeColor(string $function)
     {
         return self::$theme_config[self::$theme][$function] ?? self::$default_theme[$function];
+    }
+
+    public static function printProps(array $out, $tty_width)
+    {
+        $store = "";
+        foreach ($out as $k => $v) {
+            $line = $k . ": " . $v;
+            if (strlen($line) > 19 && $store == "" || $tty_width < 53) {
+                Console::log($line);
+            } else {
+                if ($store === "") $store = str_pad($line, 19, " ", STR_PAD_RIGHT);
+                else {
+                    $store .= (" |   " . $line);
+                    Console::log($store);
+                    $store = "";
+                }
+            }
+        }
+        if ($store != "") Console::log($store);
     }
 }
