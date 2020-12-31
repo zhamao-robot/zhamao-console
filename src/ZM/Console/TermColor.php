@@ -19,8 +19,7 @@ class TermColor
      * @param $code
      * @return string
      */
-    static function color8($code)
-    {
+    static function color8($code) {
         return "\e[{$code}m";
     }
 
@@ -29,8 +28,7 @@ class TermColor
      * @param $code
      * @return string
      */
-    static function frontColor256($code)
-    {
+    static function frontColor256($code) {
         return "\e[38;5;{$code}m";
     }
 
@@ -41,8 +39,7 @@ class TermColor
      * @param $b
      * @return string
      */
-    static function frontColor256rgb($r, $g, $b)
-    {
+    static function frontColor256rgb($r, $g, $b) {
         return "\e[38;2;{$r};{$g};{$b}m";
     }
 
@@ -51,8 +48,7 @@ class TermColor
      * @param $code
      * @return string
      */
-    static function bgColor256($code)
-    {
+    static function bgColor256($code) {
         return "\e[48;5;{$code}m";
     }
 
@@ -63,8 +59,7 @@ class TermColor
      * @param $b
      * @return string
      */
-    static function bgColor256rgb($r, $g, $b)
-    {
+    static function bgColor256rgb($r, $g, $b) {
         return "\e[48;2;{$r};{$g};{$b}m";
     }
 }
