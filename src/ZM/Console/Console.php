@@ -181,8 +181,10 @@ class Console
 
     private static function getHead($mode) {
         $head = date("[H:i:s] ") . "[{$mode[0]}] ";
-        if ((self::$server->setting["worker_num"] ?? 1) > 1 && self::$server->worker_id != -1) {
-            $head .= "[#" . self::$server->worker_id . "] ";
+        if (isset(self::$server->worker_id)) {
+            if ((self::$server->setting["worker_num"] ?? swoole_cpu_num()) > 1 && self::$server->worker_id != -1) {
+                $head .= "[#" . self::$server->worker_id . "] ";
+            }
         }
         return $head;
     }
@@ -228,5 +230,12 @@ class Console
             }
         }
         if ($store != "") Console::log($store);
+    }
+
+    /**
+     * @param null $server
+     */
+    public static function setServer($server): void {
+        self::$server = $server;
     }
 }
