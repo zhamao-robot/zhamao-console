@@ -184,6 +184,8 @@ class Console
         if (isset(self::$server->worker_id)) {
             if ((self::$server->setting["worker_num"] ?? swoole_cpu_num()) > 1 && self::$server->worker_id != -1) {
                 $head .= "[#" . self::$server->worker_id . "] ";
+            } elseif (self::$server->getManagerPid() == posix_getpid()) {
+                $head .= "[#Manager] ";
             }
         }
         return $head;
