@@ -151,7 +151,8 @@ class Console
         }
         if (self::$info_level->get() >= 2) {
             $obj = self::stringable($obj);
-            echo(self::setColor($head . ($trace ?? "") . $obj, self::getThemeColor(__FUNCTION__)) . "\n");
+            $str = (self::setColor($head . ($trace ?? "") . $obj, self::getThemeColor(__FUNCTION__)) . "\n");
+            echo $str;
         }
     }
 
@@ -163,7 +164,8 @@ class Console
         }
         if (self::$info_level->get() >= 2) {
             $obj = self::stringable($obj);
-            echo(self::setColor($head . ($trace ?? "") . $obj, self::getThemeColor(__FUNCTION__)) . "\n");
+            $str = (self::setColor($head . ($trace ?? "") . $obj, self::getThemeColor(__FUNCTION__)) . "\n");
+            echo $str;
         }
     }
 
@@ -175,7 +177,8 @@ class Console
         }
         if (self::$info_level->get() >= 1) {
             $obj = self::stringable($obj);
-            echo(self::setColor($head . ($trace ?? "") . $obj, self::getThemeColor(__FUNCTION__)) . "\n");
+            $str = (self::setColor($head . ($trace ?? "") . $obj, self::getThemeColor(__FUNCTION__)) . "\n");
+            echo $str;
         }
     }
 
