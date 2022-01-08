@@ -24,6 +24,8 @@ class Console
         "trace" => "gray"
     ];
 
+    private static $output_file = null;
+
     private static $theme_config = [];
 
     /**
@@ -33,23 +35,42 @@ class Console
      * @param string $theme
      * @param array $theme_config
      */
-    public static function init(int $info_level, $server = null, $theme = "default", $theme_config = []) {
+    public static function init(int $info_level, $server = null, string $theme = "default", array $theme_config = [])
+    {
         self::$server = $server;
         self::$info_level = new Atomic($info_level);
         self::$theme = $theme;
         self::$theme_config = $theme_config;
     }
 
-    public static function setLevel(int $level) {
+    public static function setOutputFile($file)
+    {
+        if (!file_exists($file)) {
+            if (!touch($file)) {
+                self::error("无法创建输出日志文件");
+                return;
+            }
+        }
+        if (!is_writable($file)) {
+            self::error("无法写入日志文件");
+            return;
+        }
+        self::$output_file = $file;
+    }
+
+    public static function setLevel(int $level)
+    {
         if (self::$info_level === null) self::$info_level = new Atomic($level);
         self::$info_level->set($level);
     }
 
-    public static function getLevel() {
+    public static function getLevel()
+    {
         return self::$info_level->get();
     }
 
-    public static function setColor($string, $color = "") {
+    public static function setColor($string, $color = "")
+    {
         $string = self::stringable($string);
         switch ($color) {
             case "black":
@@ -82,17 +103,18 @@ class Console
         }
     }
 
-    public static function error($obj, $head = null) {
+    public static function error($obj, $head = null)
+    {
         if ($head === null) $head = self::getHead("E");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [3, 4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
             $trace = "[" . ($trace["class"] ?? '') . ":" . ($trace["function"] ?? '') . "] ";
         }
-        $obj = self::stringable($obj);
-        echo(self::setColor($head . ($trace ?? "") . $obj, self::getThemeColor(__FUNCTION__)) . "\n");
+        self::log($head . ($trace ?? "") . self::stringable($obj), self::getThemeColor(__FUNCTION__));
     }
 
-    public static function trace($color = null) {
+    public static function trace($color = null)
+    {
         $log = "Stack trace:\n";
         $trace = debug_backtrace();
         //array_shift($trace);
@@ -113,16 +135,22 @@ class Console
             $log .= "{$t['function']}()\n";
         }
         if ($color === null) $color = self::getThemeColor("trace");
-        $log = Console::setColor($log, $color);
-        echo $log;
+        self::log($log, $color);
     }
 
-    public static function log($obj, $color = "") {
-        $obj = self::stringable($obj);
+    public static function log($obj, $color = "")
+    {
+        if (!is_string($obj)) {
+            $obj = self::stringable($obj);
+        }
+        if (self::$output_file !== null) {
+            self::logToFile($obj);
+        }
         echo(self::setColor($obj, $color) . "\n");
     }
 
-    public static function debug($msg) {
+    public static function debug($msg)
+    {
         if (self::$info_level !== null && self::$info_level->get() >= 4) {
             $msg = self::stringable($msg);
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
@@ -131,59 +159,57 @@ class Console
         }
     }
 
-    public static function verbose($obj, $head = null) {
+    public static function verbose($obj, $head = null)
+    {
         if ($head === null) $head = self::getHead("V");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
             $trace = "[" . ($trace["class"] ?? '') . ":" . ($trace["function"] ?? '') . "] ";
         }
         if (self::$info_level !== null && self::$info_level->get() >= 3) {
-            $obj = self::stringable($obj);
-            echo(self::setColor($head . ($trace ?? "") . $obj, self::getThemeColor(__FUNCTION__)) . "\n");
+            self::log($head . ($trace ?? "") . self::stringable($obj), self::getThemeColor(__FUNCTION__));
         }
     }
 
-    public static function success($obj, $head = null) {
+    public static function success($obj, $head = null)
+    {
         if ($head === null) $head = self::getHead("S");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
             $trace = "[" . ($trace["class"] ?? '') . ":" . ($trace["function"] ?? '') . "] ";
         }
         if (self::$info_level->get() >= 2) {
-            $obj = self::stringable($obj);
-            $str = (self::setColor($head . ($trace ?? "") . $obj, self::getThemeColor(__FUNCTION__)) . "\n");
-            echo $str;
+            self::log($head . ($trace ?? "") . self::stringable($obj), self::getThemeColor(__FUNCTION__));
         }
     }
 
-    public static function info($obj, $head = null) {
+    public static function info($obj, $head = null)
+    {
         if ($head === null) $head = self::getHead("I");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
             $trace = "[" . ($trace["class"] ?? '') . ":" . ($trace["function"] ?? '') . "] ";
         }
         if (self::$info_level->get() >= 2) {
-            $obj = self::stringable($obj);
-            $str = (self::setColor($head . ($trace ?? "") . $obj, self::getThemeColor(__FUNCTION__)) . "\n");
-            echo $str;
+            self::log($head . ($trace ?? "") . self::stringable($obj), self::getThemeColor(__FUNCTION__));
         }
     }
 
-    static function warning($obj, $head = null) {
+    static function warning($obj, $head = null)
+    {
         if ($head === null) $head = self::getHead("W");
         if (self::$info_level !== null && in_array(self::$info_level->get(), [4])) {
             $trace = debug_backtrace()[1] ?? ['file' => '', 'function' => ''];
             $trace = "[" . ($trace["class"] ?? '') . ":" . ($trace["function"] ?? '') . "] ";
         }
         if (self::$info_level->get() >= 1) {
-            $obj = self::stringable($obj);
-            $str = (self::setColor($head . ($trace ?? "") . $obj, self::getThemeColor(__FUNCTION__)) . "\n");
-            echo $str;
+            self::log($head . ($trace ?? "") . self::stringable($obj), self::getThemeColor(__FUNCTION__));
         }
     }
 
-    private static function getHead($mode) {
-        $head = date("[H:i:s] ") . "[{$mode[0]}] ";
+    private static function getHead($mode)
+    {
+        $head = date("[m-d H:i:s] ") . "[{$mode[0]}] ";
         if (isset(self::$server->worker_id)) {
             if ((self::$server->setting["worker_num"] ?? swoole_cpu_num()) > 1 && self::$server->worker_id != -1) {
                 $head .= "[#" . self::$server->worker_id . "] ";
@@ -194,15 +220,17 @@ class Console
         return $head;
     }
 
-    private static function getThemeColor(string $function) {
+    private static function getThemeColor(string $function)
+    {
         return self::$theme_config[self::$theme][$function] ?? self::$default_theme[$function];
     }
 
-    private static function stringable($str) {
+    private static function stringable($str)
+    {
         if (is_object($str) && method_exists($str, "__toString")) {
             return $str;
         } elseif (is_string($str) || is_numeric($str)) {
-            return $str;
+            return strval($str);
         } elseif (is_callable($str)) {
             return "{Closure}";
         } elseif (is_bool($str)) {
@@ -219,7 +247,8 @@ class Console
         }
     }
 
-    public static function printProps(array $out, $tty_width) {
+    public static function printProps(array $out, $tty_width)
+    {
         $store = "";
         foreach ($out as $k => $v) {
             $line = $k . ": " . $v;
@@ -240,7 +269,13 @@ class Console
     /**
      * @param null $server
      */
-    public static function setServer($server): void {
+    public static function setServer($server): void
+    {
         self::$server = $server;
+    }
+
+    private static function logToFile(string $obj)
+    {
+        file_put_contents(self::$output_file, $obj.PHP_EOL, FILE_APPEND | LOCK_EX);
     }
 }
